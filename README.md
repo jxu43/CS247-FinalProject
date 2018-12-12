@@ -9,7 +9,7 @@ We use Flickr8k [2] as dataset.
 
 ## Model 
 <div align="center">
-  <img src="Model.png"><br><br>
+  <img src="./Model.png"><br><br>
 </div>
 
 ## Train
