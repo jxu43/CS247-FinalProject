@@ -1,12 +1,11 @@
-import SceneDesc
-
+import decode_caption
 import sys
 
 def train(epoch):
-    sd = SceneDesc.scenedesc()
-    model = sd.create_model()
+    decoder = decode_caption.decoder()
+    model = decoder.model_gen()
     batch_size = 512
-    model.fit_generator(sd.data_process(batch_size=batch_size), steps_per_epoch=sd.no_samples/batch_size, epochs=epoch, verbose=2, callbacks=None)
+    model.fit_generator(decoder.generator(batch_size=batch_size), steps_per_epoch=decoder.num_samples/batch_size, epochs=epoch, verbose=2, callbacks=None)
     model.save('Output/Model.h5', overwrite=True)
     model.save_weights('Output/Weights.h5',overwrite=True)
  
