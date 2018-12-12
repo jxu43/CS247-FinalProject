@@ -1,10 +1,9 @@
-from vgg16 import VGG16
 import numpy as np
-from keras.preprocessing import image
-from imagenet_utils import preprocess_input	
-# import six.moves.cPickle as pickle
 import pickle
 import progressbar
+from vgg16 import VGG16
+from keras.preprocessing import image
+from imagenet_utils import preprocess_input	
 
 TOKEN_PATH = "Flickr8K_Text/Flickr8k.token.txt"
 TRAIN_PATH = "Flickr8K_Text/Flickr_8k.trainImages.txt"
@@ -39,32 +38,35 @@ def model_gen():
 	return model
 
 def encodings(model, path):
-	processed_img = image.load_img(path, target_size=(224,224))
-	x = image.img_to_array(processed_img)
-	x = np.expand_dims(x, axis=0)
-	x = preprocess_input(x)
-	image_final = np.asarray(x)
-	prediction = model.predict(image_final)
+	processed_image = image.load_img(path, target_size=(224,224))
+	processed_image = image.img_to_array(processed_image)
+	processed_image = np.expand_dims(processed_image, axis=0)
+	ready_image = np.asarray(preprocess_input(processed_image))
+	prediction = model.predict(ready_image)
 	prediction = np.reshape(prediction, prediction.shape[1])
 	return prediction
 
 def encode_image():
 	model = model_gen()
 	image_encodings = {}
-	
-	images = open("Flickr8K_Text/Flickr_8k.trainImages.txt").read().split('\n')[:-1]
-	print(len(images))
+	images = open(TRAIN_PATH).read().split('\n')[:-1]
+
+	# visualize progress
 	bar = progressbar.ProgressBar(maxval=len(images), \
     		widgets=[progressbar.Bar('=', '[', ']'), ' ', progressbar.Percentage()])
-	bar.start()
-	counter=1
+
+	# start encoding
 	print("Encoding images")
+	bar.start()
+	process_progess = 1
 	for img in images:
 		path = "Flickr8K_Data/"+str(img)
 		image_encodings[img] = encodings(model, path)
-		bar.update(counter)
-		counter += 1
+		bar.update(process_progess)
+		process_progess += 1
 	bar.finish()
+
+	# dump the encoding file
 	with open( "image_encodings.p", "wb" ) as pickle_f:
 		pickle.dump(image_encodings, pickle_f)
 	print("Finishing Encoding")
